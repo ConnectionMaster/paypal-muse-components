@@ -10,7 +10,8 @@ export default {
     'paypalCrCart': 'paypal-cr-cart',
     'paypalCrPropertyId': 'paypal-cr-propid',
     'paypalCrContainer': 'paypal-cr-container',
-    'paypalSDKIdentity': 'paypal-sdk-identity'
+    'paypalSDKIdentity': 'paypal-sdk-identity',
+    'paypalSDKConsoleDebug': 'paypal-sdk-console-debug'
   },
   'defaultTrackerConfig': {
     'user': {
@@ -18,5 +19,11 @@ export default {
       'email': null,
       'name': null
     }
+  },
+  'defaultCountry': 'US',
+  'IDENTITY_MESSAGES': {
+    FETCH_ERROR: 'fetch_identity_error',
+    USER_INFO_REQUEST: 'fetch_identity_request',
+    USER_COUNTRY_MESSAGE: 'fetch_identity_country'
   }
 };

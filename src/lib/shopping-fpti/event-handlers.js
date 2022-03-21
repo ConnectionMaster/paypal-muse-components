@@ -1,8 +1,12 @@
-import { capturePageData } from '../tag-parsers/capture-page-data';
 /* @flow */
+// $FlowFixMe
+import { capturePageData } from '../tag-parsers/capture-page-data';
 import type { Config } from '../../types';
 import type { EventType } from '../../types/shopping-events';
+import { isConfigFalse } from '../utils';
+import { debugLogger } from '../debug-console-logger';
 
+// eslint-disable-next-line default-param-last
 function findConfigurationAttribute(config : Config, payload : Object = {}, attribName : string) : ?string {
   const shopperConfig = config.shoppingAttributes || {};
   return shopperConfig[attribName] || payload[attribName];
@@ -13,6 +17,7 @@ export const allowedAttributes = [
   'page_type',
   'page_name',
   'page_id',
+  'page_path',
   'page_category_name',
   'page_category_id',
   'deal_id',
@@ -32,7 +37,7 @@ export const allowedAttributes = [
   // purchase
   'amount',
   // set properties
-  'currency',
+  'currency'
 ];
 
 export function eventSinfoBuilderInit(config : Config) : Object {
@@ -43,6 +48,18 @@ export function eventSinfoBuilderInit(config : Config) : Object {
         obj[key] = event[key];
         return obj;
       }, {});
+
+    const excludedAttributes = Object.keys(event)
+      .filter((key) => !allowedAttributes.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = event[key];
+        return obj;
+      }, {});
+
+    if (Object.keys(excludedAttributes).length) {
+      debugLogger.log('[event-handler:filterAttributesForSinfoPayload] Following attributes will be excluded from event sinfo payload:', excludedAttributes);
+    }
+
     return filteredAttributes;
   }
 
@@ -51,10 +68,9 @@ export function eventSinfoBuilderInit(config : Config) : Object {
 
     const enrichedPayload = filterAttributesForSinfoPayload({
       ...payload,
-      ...shopperConfig,
+      ...shopperConfig
     });
-
-    const shouldCaptureData = window.__pp__shopping__ && window.__pp__shopping__.capturePageData;
+    const shouldCaptureData = !isConfigFalse(shopperConfig.parse_page);
     const capturedData = shouldCaptureData ? capturePageData() : {};
     if (shouldCaptureData) {
       enrichedPayload.capturedData = capturedData;
